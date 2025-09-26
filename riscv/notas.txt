@@ -1,0 +1,25 @@
+{ echo 'v2.0 raw'; ./build_riscv_inst.py < exemplos/test2.S; } | tr -d ' ' > exemplos/test2.hex
+	colocar espaço
+
+tab ver controle:
+
+  instr aluFunc selB selC wrReg wrMem selPC
+0 add     000    0     00    1     0    00	08
+1 sub     001    0     00    1     0    00	88
+2 xor     010    0     00    1     0    00	108
+3 or      011    0     00    1     0    00	188
+4 and     100    0     00    1     0    00	208
+8 addi    000    1     00    1     0    00	48
+9 lw      000    1     01    1     0    00	58
+a sw      000    1     XX    0     1    00	44
+
+1 sll     101    0     00    1     0    00	288
+2 srl     110    0     00    1     0    00	308
+3 sra     111    0     00    1     0    00   	388
+6 jal     XXX    X     10    1     0    01	29
+             
+4 beq     001    0     XX    0     0    0 ZERO
+5 blt     001    0     XX    0     0    0 NEG
+7 jalr    000    1     10    1     0    10	6A
+
+sub: quando aluFunc for 001, o and por onde F passa retornará 1, fazendo com q o MUX pegue o valor invertido de B, realizando uma subtração
