@@ -1,0 +1,17 @@
+{ echo 'v2.0 raw'; ./build_riscv_inst.py < exemplos/test2.S; } | tr -d ' ' > exemplos/test2.hex
+	colocar espaço
+
+beq:
+O comando beq decide a quantidade de instruções puladas a partir do resultado da subtração dos valores a e b. Se a - b = 0, a próxima instrução será PC + const; senão, a próxima instrução será PC + 1
+Então é necessário utilizar a saída 'zero' da ULA. Se esse sinal for 0, o MUX que seleciona o número da próxima instrução soltará o valor de PC + 1; se o sinal for 1, a próxima instrução deverá ser PC + const.
+Assim, quando a instrução executada for beq, o bit mais à direita de 'selPC' deverá ser igual à saída 'zero' (cf. "controle.txt" neste diretório).
+Por isso, eu coloquei um AND que soltará 1 quando o binário de saída de Controle for o de beq (0010010000, do jeito que eu fiz), controlando um MUX que escolhe entre o bit mais à direita do sinal selPC e o valor 'zero'.
+
+blt: 
+O blt também decide a quantidade de instruções puladas a partir do resultado da subtração dos valores a e b. Se a - b < 0, a próxima instrução será PC + const; senão, a próxima instrução será PC + 1.
+Portanto a lógica aqui é a mesma da usada para implementar beq, mas com o sinal 'neg' (negativo) da ULA: se o sinal de saída de Controle for o de blt (0010100000, aqui) o bit mais à direita de 'selPC' será igual à saída 'neg', havendo um AND ligado ao seletor de um MUX para fazer essa verificação.
+
+Outra forma de implementação que eu testei e funciona:
+Ao invés de fazer dois ANDs para checar se o comando é beq ou blt, poderia-se criar mais dois sinais de controle saindo direto da ROM Controle, um 'selBeq', que será 1 quando a instrução for beq, e um 'selBlt', que será 1 quando a instrução for blt. 
+Fazendo isso, é preciso aumentar os bits de dados de Controle para 12, alterar o distribuidor que recebe esses valores e multiplicar os sinais de controle por 4 (pois mais dois zeros ao final dos binários significa dois shifts à esquerda).
+Esta abordagem tem a vantagem de eliminar aquele bagunça feíssima gerada pelos dois ANDs e MUXs no circuito.
