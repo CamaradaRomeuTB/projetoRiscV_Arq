@@ -1,14 +1,33 @@
+Para ver a tabela final de controle, cf. "controle.txt" neste diretório.
+
+jal e jalr:
+  -PC:
+	A instrução jal soma const a PC. Então quando a instrução for jal é necessário que o valor de entrada 'D' de PC seja PC + const, sendo necessário um MUX que recebe um sinal de controle para selecionar o valor de PC. Esse MUX terá PC = PC + 1 na entrada 00 e PC = PC + const na entrada 01.
+	Isso significa que é preciso aumentar os bits de dados de Controle para acomodar o sinal selPC (de 2 bits), alterando os binários de cada instrução de forma correspondente e alterando o distribuidor de Controle.
+	jalr joga o valor r(a) + const para PC, portanto a entrada 10 do MUX de seleção de PC será r(a) + const.
+	No final o esquema de 'selPC' é este: selPC = 00 -> PC = PC + 1; 
+					      selPC = 01 -> PC = PC + const; 
+					      selPC = 10 -> PC = r(a) + const;
+					      selPC = 11 -> PC = 0 (selPC nunca será 11, mas é necessário botar algo nessa entrada para o Digital não apontar erro).
+  -selC:
+	Tanto jal quanto jalr também guardam o valor PC + 1 no registrador r(c). Então é necessário adicionar mais uma entrada para o MUX que seleciona a entrada 'C' nos registradores, sendo que essa nova entrada recebe o valor PC + 1.
+	Assim, 'selC' tem de ter 2 bits, sendo necessário aumentar os bits de dados de Controle em mais um, etc.
+	O esquema de 'selC' ficará: selC = 00 -> C(dos registradores) = R(da ULA);
+				    selC = 01 -> C = D(da memória RAM);
+				    selC = 10 -> C = PC + 1;
+				    selC = 11 -> C = 0 (pro Digital não apontar erro).
+
 beq:
 O comando beq decide a quantidade de instruções puladas a partir do resultado da subtração dos valores a e b. Se a - b = 0, a próxima instrução será PC + const; senão, a próxima instrução será PC + 1
 Então é necessário utilizar a saída 'zero' da ULA. Se esse sinal for 0, o MUX que seleciona o número da próxima instrução soltará o valor de PC + 1; se o sinal for 1, a próxima instrução deverá ser PC + const.
-Assim, quando a instrução executada for beq, o bit mais à direita de 'selPC' deverá ser igual à saída 'zero' (cf. "controle.txt" neste diretório).
-Por isso, eu coloquei um AND que soltará 1 quando o binário de saída de Controle for o de beq (0010010000, do jeito que eu fiz), controlando um MUX que escolhe entre o bit mais à direita do sinal selPC e o valor 'zero'.
+Assim, quando a instrução executada for beq, o bit mais à direita de 'selPC' deverá ser igual à saída 'zero' (cf. "controle.txt").
+Por isso, eu coloquei um AND que soltará 1 quando o binário de saída de Controle for o de beq (0010010000, do jeito que eu fiz), controlando um MUX que escolhe entre o bit mais à direita do sinal 'selPC' e o valor 'zero'.
 
 blt: 
 O blt também decide a quantidade de instruções puladas a partir do resultado da subtração dos valores a e b. Se a - b < 0, a próxima instrução será PC + const; senão, a próxima instrução será PC + 1.
 Portanto a lógica aqui é a mesma da usada para implementar beq, mas com o sinal 'neg' (negativo) da ULA: se o sinal de saída de Controle for o de blt (0010100000, aqui) o bit mais à direita de 'selPC' será igual à saída 'neg', havendo um AND ligado ao seletor de um MUX para fazer essa verificação.
 
-Outra forma de implementação que eu testei e funciona:
+Outra forma de implementação de beq e blt que eu testei e funciona:
 Ao invés de fazer dois ANDs para checar se o comando é beq ou blt, poderia-se criar mais dois sinais de controle saindo direto da ROM Controle, um 'selBeq', que será 1 quando a instrução for beq, e um 'selBlt', que será 1 quando a instrução for blt. 
 Fazendo isso, é preciso aumentar os bits de dados de Controle para 12, alterar o distribuidor que recebe esses valores e multiplicar os sinais de controle por 4 (pois mais dois zeros ao final dos binários significa dois shifts à esquerda).
 Esta abordagem tem a vantagem de eliminar aquele bagunça feíssima gerada pelos dois ANDs e MUXs no circuito.
