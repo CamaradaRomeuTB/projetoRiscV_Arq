@@ -15,6 +15,3 @@ c blt      0	   1	  001    0     XX    0     0     0 NEG(sinal da ULA)
 d jal      0	   0	  XXX    X     10    1     0     01			   
 e jalr     0	   0	  000    1     10    1     0     10			
 f slt	   0	   0	  001    0     11    1	   0	 00   
-
-
-*esses valores não precisam necessariamente ser assim, eu só os escolhi assim para que o beq e o blt tivessem binários diferentes, para poder controlar os sinais de seleção
